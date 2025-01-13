@@ -33,20 +33,7 @@ struct ListMainView: View {
                             NavigationLink(value: item) {
                                 ZStack(alignment: .topLeading) {
                                     if editMode {
-                                        Button(action: {
-                                            deleteListItem = item
-                                            showConfirmationDialog = true
-                                        }) {
-                                            Image(systemName: "trash.square")
-                                                .resizable()
-                                                .scaledToFill()
-                                                .foregroundStyle(Color.red)
-                                                .frame(
-                                                    width: 30,
-                                                    height: 30
-                                                )
-                                        }
-                                        .padding(5)
+                                        trashBadgeButton(item)
                                     }
                                     ListCardView(listModel: item, width: columnWidth)
                                         .disabled(editMode)
@@ -60,14 +47,7 @@ struct ListMainView: View {
                 .navigationDestination(for: ListItemModel.self, destination: FullListView.init)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: { editMode.toggle() }) {
-                            if editMode {
-                                Text("Done")
-                            }
-                            else {
-                                Text("Edit")
-                            }
-                        }
+                        editButton
                     }
                 }
                 .confirmationDialog("",
@@ -75,25 +55,70 @@ struct ListMainView: View {
                                     titleVisibility: .hidden,
                                     presenting: deleteListItem
                 ){ item in
-                    Button("Delete \(deleteListItem?.listName ?? "")",
-                           role: .destructive) {
-                        deleteList(item: item)
-                        deleteListItem = nil
-                    }
-                    Button("Cancel", role: .cancel) {
-                        deleteListItem = nil
-                    }
+                    confirmDeleteButton(item)
+                    cancelButton
                 }
             } else {
-                VStack {
-                    Text("You have not created any lists yet!")
-                    Button("Get started!") {
-                        addNewList()
-                    }
-                }
-                .navigationTitle(Text("Your Lists"))
+                noListView
             }
         }
+    }
+    
+    @ViewBuilder
+    func trashBadgeButton(_ item: ListItemModel) -> some View {
+        Button(action: {
+            deleteListItem = item
+            showConfirmationDialog = true
+        }) {
+            Image(systemName: "trash.square")
+                .resizable()
+                .scaledToFill()
+                .foregroundStyle(Color.red)
+                .frame(
+                    width: 30,
+                    height: 30
+                )
+        }
+        .padding(5)
+    }
+    
+    @ViewBuilder
+    var editButton: some View {
+        Button(action: { editMode.toggle() }) {
+            if editMode {
+                Text("Done")
+            }
+            else {
+                Text("Edit")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func confirmDeleteButton(_ item: ListItemModel) -> some View {
+        Button("Delete \(deleteListItem?.listName ?? "")",
+               role: .destructive) {
+            deleteList(item: item)
+            deleteListItem = nil
+        }
+    }
+    
+    @ViewBuilder
+    var cancelButton: some View {
+        Button("Cancel", role: .cancel) {
+            deleteListItem = nil
+        }
+    }
+    
+    @ViewBuilder
+    var noListView: some View {
+        VStack {
+            Text("You have not created any lists yet!")
+            Button("Get started!") {
+                addNewList()
+            }
+        }
+        .navigationTitle(Text("Your Lists"))
     }
     
 //    func addSamples() {

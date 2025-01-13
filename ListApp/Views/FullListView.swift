@@ -33,16 +33,7 @@ struct FullListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(listItemModel.listName).font(.largeTitle)
-                if let end = listItemModel.endDate {
-                    Text("Due: \(dateFormatter.string(from: end))")
-                        .font(.body)
-                        .opacity(0.5)
-                }
-            }
-            .padding()
-            
+            titleView
             List {
                 ForEach(listItemModel.itemStatePair.indices, id: \.self) { index in
                     ListItemView($listItemModel.itemStatePair[index].itemName, isCompleted: $listItemModel.itemStatePair[index].itemState)
@@ -52,33 +43,11 @@ struct FullListView: View {
                 }
                 .onDelete(perform: deleteItem)
                 if !isEditing {
-                    Button {
-                        withAnimation(.snappy) {
-                            isEditing = true
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus")
-                            Text("Add item")
-                        }
-                    }
-                    .listRowBackground(Color.clear)
+                    addItemButton
+                        .listRowBackground(Color.clear)
                 } else {
-                    HStack {
-                        Image(systemName: "circle")
-                        TextField("New Item", text: $text)
-                            .focused($isFocus)
-                            .onSubmit {
-                                addItem(itemName: text)
-                                isEditing = false
-                                isFocus = false
-                                text = ""
-                            }
-                    }
-                    .onAppear{
-                        isFocus = true
-                    }
-                    .listRowBackground(Color.clear)
+                    editingNewItemView
+                        .listRowBackground(Color.clear)
                 }
             }
         }
@@ -87,10 +56,7 @@ struct FullListView: View {
         }
         .navigationBarBackButtonHidden(isKeyboardVisible)
         .toolbar {
-            Button(action: {presentAlert = true }) {
-                Image(systemName: "pencil")
-            }
-            .disabled(isKeyboardVisible)
+            editButtonView
         }
         .customModal($presentAlert){
             UpdateView(listName: $name,
@@ -102,6 +68,59 @@ struct FullListView: View {
                 saveChanges()
             })
         }
+    }
+    
+    @ViewBuilder
+    var titleView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(listItemModel.listName).font(.largeTitle)
+            if let end = listItemModel.endDate {
+                Text("Due: \(dateFormatter.string(from: end))")
+                    .font(.body)
+                    .opacity(0.5)
+            }
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    var addItemButton: some View {
+        Button {
+            withAnimation(.snappy) {
+                isEditing = true
+            }
+        } label: {
+            HStack {
+                Image(systemName: "plus")
+                Text("Add item")
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var editingNewItemView: some View {
+        HStack {
+            Image(systemName: "circle")
+            TextField("New Item", text: $text)
+                .focused($isFocus)
+                .onSubmit {
+                    addItem(itemName: text)
+                    isEditing = false
+                    isFocus = false
+                    text = ""
+                }
+        }
+        .onAppear{
+            isFocus = true
+        }
+    }
+    
+    @ViewBuilder
+    var editButtonView: some View {
+        Button(action: {presentAlert = true }) {
+            Image(systemName: "pencil")
+        }
+        .disabled(isKeyboardVisible)
     }
     
     func saveChanges() {
