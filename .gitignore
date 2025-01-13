@@ -1,4 +1,4 @@
 #Ignore all xcuserdata files
-*.xcuserstate
+**/*.xcuserstate
 project.xcworkspace/
 xcuserdata/

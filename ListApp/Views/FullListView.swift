@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct FullListView: View {
     @Bindable var listItemModel: ListItemModel
@@ -16,6 +17,8 @@ struct FullListView: View {
     @State var endDate: Date = .now
     @State var noEndDate = true
     @FocusState private var isFocus: Bool
+    @State private var isKeyboardVisible: Bool = false
+    private let dateFormatter = DateFormatter()
     
     init(listItemModel: ListItemModel) {
         self._name = State(initialValue: listItemModel.listName)
@@ -25,12 +28,20 @@ struct FullListView: View {
         }
         self.listItemModel = listItemModel
         self.isFocus = false
+        dateFormatter.dateStyle = .short
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(listItemModel.listName).font(.largeTitle)
-                .padding()
+            VStack(alignment: .leading, spacing: 10) {
+                Text(listItemModel.listName).font(.largeTitle)
+                if let end = listItemModel.endDate {
+                    Text("Due: \(dateFormatter.string(from: end))")
+                        .font(.body)
+                        .opacity(0.5)
+                }
+            }
+            .padding()
             
             List {
                 ForEach(listItemModel.itemStatePair.indices, id: \.self) { index in
@@ -71,10 +82,15 @@ struct FullListView: View {
                 }
             }
         }
+        .onReceive(keyboardPublisher) { value in
+            isKeyboardVisible = value
+        }
+        .navigationBarBackButtonHidden(isKeyboardVisible)
         .toolbar {
             Button(action: {presentAlert = true }) {
                 Image(systemName: "pencil")
             }
+            .disabled(isKeyboardVisible)
         }
         .customModal($presentAlert){
             UpdateView(listName: $name,
