@@ -15,6 +15,7 @@ struct ListMainView: View {
     @State var showConfirmationDialog = false
     @Query var listArray: [ListItemModel]
     @State var path = [ListItemModel] ()
+    @State var sortOption: ListMainSortingOptions = .alphabet
     let columnWidth: CGFloat = 200
     var body: some View {
         NavigationStack(path: $path) {
@@ -29,7 +30,7 @@ struct ListMainView: View {
                                     addNewList()
                                 }
                         }
-                        ForEach(listArray, id: \.id) { item in
+                        ForEach(listArraySortByOption, id: \.id) { item in
                             NavigationLink(value: item) {
                                 ZStack(alignment: .topLeading) {
                                     if editMode {
@@ -47,7 +48,10 @@ struct ListMainView: View {
                 .navigationDestination(for: ListItemModel.self, destination: FullListView.init)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        editButton
+                        HStack(spacing: 5) {
+                            editButton
+                            sortButtonView
+                        }
                     }
                 }
                 .confirmationDialog("",
@@ -95,6 +99,26 @@ struct ListMainView: View {
     }
     
     @ViewBuilder
+    var sortButtonView: some View {
+        Menu( content: {
+            SortButtonView("A-Z", isChecked: sortOption == .alphabet) {
+                sortOption = .alphabet
+            }
+            SortButtonView("Earliest deadline", isChecked: sortOption == .dueFirst) {
+                sortOption = .dueFirst
+            }
+            SortButtonView("Earliest created", isChecked: sortOption == .createFirst) {
+                sortOption = .createFirst
+            }
+            SortButtonView("Latest created", isChecked: sortOption == .createLast) {
+                sortOption = .createLast
+            }
+        }, label:  {
+            Text("Sort")
+        })
+    }
+    
+    @ViewBuilder
     func confirmDeleteButton(_ item: ListItemModel) -> some View {
         Button("Delete \(deleteListItem?.listName ?? "")",
                role: .destructive) {
@@ -120,15 +144,6 @@ struct ListMainView: View {
         }
         .navigationTitle(Text("Your Lists"))
     }
-    
-//    func addSamples() {
-//        let list1 = ListItemModel("List 1", items: ["Item 1", "Item 2"], states: [false, false], end: .distantFuture)
-//        let listModel2 = ListItemModel("List 2", items: ["Item 1", "Item 2"], states: [false, true])
-//        let listModel3 = ListItemModel("List 3", items: ["Item 1", "Item 2", "Item 3"], states: [false, true, false])
-//        modelContext.insert(list1)
-//        modelContext.insert(listModel2)
-//        modelContext.insert(listModel3)
-//    }
     
     func findDefaultName() -> String {
         var num = 1
