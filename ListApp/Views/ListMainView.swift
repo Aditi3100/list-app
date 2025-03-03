@@ -29,6 +29,9 @@ struct ListMainView: View {
                                 .onTapGesture {
                                     addNewList()
                                 }
+                                .accessibilityLabel("Create new list")
+                                .accessibilityHint("Double tap to create a new list")
+                        
                         }
                         ForEach(listArraySortByOption, id: \.id) { item in
                             NavigationLink(value: item) {
@@ -40,12 +43,14 @@ struct ListMainView: View {
                                         .disabled(editMode)
                                 }
                             }
+                            .accessibilityLabel("\(item.listName)")
+                            .accessibilityHint(editMode ? "Double tap to delete list." : "Double tap to view list details")
                         }
                     }
                     .padding(16)
                 }
                 .navigationTitle(Text("Your Lists"))
-                .navigationDestination(for: ListItemModel.self, destination: FullListView.init)
+                .navigationDestination(for: ListItemModel.self, destination: ListDetailsView.init)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         HStack(spacing: 5) {
@@ -84,6 +89,8 @@ struct ListMainView: View {
                 )
         }
         .padding(5)
+        .accessibilityLabel("Delete \(item.listName)")
+        .accessibilityHint("Double tap to delete this list")
     }
     
     @ViewBuilder
@@ -96,6 +103,8 @@ struct ListMainView: View {
                 Text("Edit")
             }
         }
+        .accessibilityLabel("Edit mode")
+        .accessibilityHint("Double tap to toggle edit mode")
     }
     
     @ViewBuilder
@@ -116,6 +125,8 @@ struct ListMainView: View {
         }, label:  {
             Text("Sort")
         })
+        .accessibilityLabel("Sort lists")
+        .accessibilityHint("Double tap to show sorting options")
     }
     
     @ViewBuilder
@@ -125,6 +136,8 @@ struct ListMainView: View {
             deleteList(item: item)
             deleteListItem = nil
         }
+        .accessibilityLabel("Delete \(deleteListItem?.listName ?? "")")
+        .accessibilityHint("Double tap to confirm deletion")
     }
     
     @ViewBuilder
@@ -132,6 +145,8 @@ struct ListMainView: View {
         Button("Cancel", role: .cancel) {
             deleteListItem = nil
         }
+        .accessibilityLabel("Cancel deletion")
+        .accessibilityHint("Double tap to cancel deletion")
     }
     
     @ViewBuilder
@@ -143,6 +158,8 @@ struct ListMainView: View {
             }
         }
         .navigationTitle(Text("Your Lists"))
+        .accessibilityLabel("No lists created")
+        .accessibilityHint("Double tap to add a new list")
     }
     
     func findDefaultName() -> String {

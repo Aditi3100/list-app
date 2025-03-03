@@ -22,6 +22,7 @@ struct UpdateView: View {
                         .font(.title)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 10)
+                        .accessibilityAddTraits(.isHeader)
                     Spacer()
                 }
                 HStack(spacing: 5) {
@@ -37,6 +38,7 @@ struct UpdateView: View {
                                     .opacity(0.2)
                             }
                         }
+                        .accessibilityHint("Edit list name")
                 }
                 HStack(alignment: .top, spacing: 5) {
                     Text("Deadline: ")
@@ -45,10 +47,15 @@ struct UpdateView: View {
                     }
                     .datePickerStyle(.graphical)
                     .disabled(noEndDate)
+                    .accessibilityHidden(noEndDate)
                 }
+                .accessibilityHint(noEndDate ? "List set to have no deadline" : "Select a date for your list's deadline")
                 Toggle("No deadline", isOn: $noEndDate)
                     .toggleStyle(CheckToggleStyle())
                     .tint(Color.black)
+                    .accessibilityValue(noEndDate ? "No deadline" : "Deadline set")
+                    .accessibilityLabel("No deadline")
+                    .accessibilityHint("Toggle to set a deadline for your list")
             }
             .padding(16)
             Divider()
@@ -58,12 +65,18 @@ struct UpdateView: View {
                         .multilineTextAlignment(.center)
                 }
                     .frame(maxWidth: .infinity)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityLabel("Cancel")
+                    .accessibilityHint("Double tap to cancel")
                 Divider()
                 Button(action: saveAction) {
                     Text("Save")
                         .multilineTextAlignment(.center)
                 }
                     .frame(maxWidth: .infinity)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityLabel("Save")
+                    .accessibilityHint("Double tap to save changes")
             }
             .frame(height: 50)
         }

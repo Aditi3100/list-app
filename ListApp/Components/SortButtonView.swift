@@ -27,5 +27,7 @@ struct SortButtonView: View {
                 }
             }
         }
+        .accessibilityLabel("Sort by \(buttonName)")
+        .accessibilityHint("Double tap to sort by option")
     }
 }

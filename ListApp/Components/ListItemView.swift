@@ -22,21 +22,30 @@ struct ListItemView: View {
     }
     
     var body: some View {
-        HStack {
-            Image(systemName: getImageName())
-            if !isEditing {
+        if !isEditing {
+            HStack {
+                Image(systemName: getImageName())
                 Text(itemName).strikethrough(isComplete)
                     .animation(.easeIn, value: isComplete)
-                    .onTapGesture {
-                        isComplete.toggle()
-                    }
-                    .contextMenu {
-                        Button("Edit") {
-                            isEditing = true
-                            isFocus = true
-                        }
-                    }
-            } else {
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(isComplete ? "Completed" : "Not completed")
+            .accessibilityHint("Double tap to toggle completion status. Triple tap to open menu.")
+            .onTapGesture {
+                isComplete.toggle()
+            }
+            .contextMenu {
+                Button("Edit") {
+                    isEditing = true
+                    isFocus = true
+                }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityLabel("Edit item")
+                .accessibilityHint("Double tap to edit item")
+            }
+        } else {
+            HStack{
+                Image(systemName: "circle")
                 TextField(text, text: $text)
                     .focused($isFocus)
                     .onSubmit {
@@ -44,6 +53,7 @@ struct ListItemView: View {
                         isEditing = false
                         isFocus = false
                     }
+                    .accessibilityHint("Edit item name")
             }
         }
     }

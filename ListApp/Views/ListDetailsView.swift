@@ -1,5 +1,5 @@
 //
-//  FullListView.swift
+//  ListDetailsView.swift
 //  ListApp
 //
 //  Created by Aditi Nath on 17/11/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 
-struct FullListView: View {
+struct ListDetailsView: View {
     @Bindable var listItemModel: ListItemModel
     @State var text: String = ""
     @State private var isEditing: Bool = false
@@ -50,6 +50,7 @@ struct FullListView: View {
                         .listRowBackground(Color.clear)
                 }
             }
+            .accessibilityLabel("Items in \(listItemModel.listName)")
         }
         .onReceive(keyboardPublisher) { value in
             isKeyboardVisible = value
@@ -74,10 +75,12 @@ struct FullListView: View {
     var titleView: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(listItemModel.listName).font(.largeTitle)
+                .accessibilityAddTraits(.isHeader)
             if let end = listItemModel.endDate {
                 Text("Due: \(dateFormatter.string(from: end))")
                     .font(.body)
                     .opacity(0.5)
+                    .accessibilityLabel("Due date \(dateFormatter.string(from: end))")
             }
         }
         .padding()
@@ -95,6 +98,8 @@ struct FullListView: View {
                 Text("Add item")
             }
         }
+        .accessibilityLabel("Add new item")
+        .accessibilityHint("Double tap to add a new item to the list")
     }
     
     @ViewBuilder
@@ -110,6 +115,7 @@ struct FullListView: View {
                     text = ""
                 }
         }
+        .accessibilityHint("Enter the name of your new item")
         .onAppear{
             isFocus = true
         }
@@ -121,6 +127,8 @@ struct FullListView: View {
             Image(systemName: "pencil")
         }
         .disabled(isKeyboardVisible)
+        .accessibilityLabel("Edit list details")
+        .accessibilityHint("Double tap to edit list name and due date")
     }
     
     func saveChanges() {
