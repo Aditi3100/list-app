@@ -32,26 +32,50 @@ struct ListDetailsView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            titleView
-            List {
+        List {
+            Section {
+                titleSection
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color(uiColor: .systemBackground))
+            
+            Section {
                 ForEach(listItemModel.itemStatePair.indices, id: \.self) { index in
-                    ListItemView($listItemModel.itemStatePair[index].itemName, isCompleted: $listItemModel.itemStatePair[index].itemState)
-                        .geometryGroup()
+                    ListItemView($listItemModel.itemStatePair[index].itemName, 
+                               isCompleted: $listItemModel.itemStatePair[index].itemState)
                         .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityLabel("List item \(listItemModel.itemStatePair[index].itemName)")
+                        .accessibilityHint("Double tap to toggle completion")
                 }
                 .onDelete(perform: deleteItem)
+            }
+            
+            Section {
                 if !isEditing {
                     addItemButton
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color(uiColor: .systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.vertical, 4)
+                        .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 } else {
                     editingNewItemView
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color(uiColor: .systemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.vertical, 4)
+                        .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
             }
-            .accessibilityLabel("Items in \(listItemModel.listName)")
         }
+        .listStyle(.insetGrouped)
+        .background(Color(uiColor: .systemGroupedBackground))
+        .navigationBarTitleDisplayMode(.inline)
         .onReceive(keyboardPublisher) { value in
             isKeyboardVisible = value
         }
@@ -71,60 +95,75 @@ struct ListDetailsView: View {
         }
     }
     
-    @ViewBuilder
-    var titleView: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(listItemModel.listName).font(.largeTitle)
+    private var titleSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(listItemModel.listName)
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .foregroundColor(.primary)
                 .accessibilityAddTraits(.isHeader)
+            
             if let end = listItemModel.endDate {
-                Text("Due: \(dateFormatter.string(from: end))")
-                    .font(.body)
-                    .opacity(0.5)
-                    .accessibilityLabel("Due date \(dateFormatter.string(from: end))")
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar")
+                        .foregroundStyle(.secondary)
+                    Text(dateFormatter.string(from: end))
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                }
+                .accessibilityLabel("Due date \(dateFormatter.string(from: end))")
             }
         }
-        .padding()
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
     }
     
-    @ViewBuilder
-    var addItemButton: some View {
+    private var addItemButton: some View {
         Button {
             withAnimation(.snappy) {
                 isEditing = true
             }
         } label: {
             HStack {
-                Image(systemName: "plus")
-                Text("Add item")
+                Image(systemName: "plus.circle.fill")
+                Text("Add Item")
             }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .font(.system(.body, weight: .regular))
+            .foregroundStyle(.blue)
         }
         .accessibilityLabel("Add new item")
         .accessibilityHint("Double tap to add a new item to the list")
     }
     
-    @ViewBuilder
-    var editingNewItemView: some View {
-        HStack {
+    private var editingNewItemView: some View {
+        HStack(spacing: 12) {
             Image(systemName: "circle")
+                .foregroundStyle(.secondary)
             TextField("New Item", text: $text)
                 .focused($isFocus)
+                .textFieldStyle(.plain)
+                .submitLabel(.done)
                 .onSubmit {
                     addItem(itemName: text)
                     isEditing = false
                     isFocus = false
                     text = ""
                 }
+                .accessibilityLabel("New item text field")
+                .accessibilityHint("Enter the name of your new item")
         }
-        .accessibilityHint("Enter the name of your new item")
-        .onAppear{
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear {
             isFocus = true
         }
     }
     
-    @ViewBuilder
-    var editButtonView: some View {
-        Button(action: {presentAlert = true }) {
-            Image(systemName: "pencil")
+    private var editButtonView: some View {
+        Button(action: { presentAlert = true }) {
+            Image(systemName: "pencil.circle")
+                .font(.system(.body, weight: .regular))
         }
         .disabled(isKeyboardVisible)
         .accessibilityLabel("Edit list details")
@@ -147,4 +186,3 @@ struct ListDetailsView: View {
         listItemModel.itemStatePair.remove(atOffsets: offsets)
     }
 }
-

@@ -23,7 +23,7 @@ struct ListItemView: View {
     
     var body: some View {
         if !isEditing {
-            HStack {
+            HStack(spacing: 12) {
                 Image(systemName: getImageName())
                 Text(itemName).strikethrough(isComplete)
                     .animation(.easeIn, value: isComplete)
@@ -43,8 +43,10 @@ struct ListItemView: View {
                 .accessibilityLabel("Edit item")
                 .accessibilityHint("Double tap to edit item")
             }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
         } else {
-            HStack{
+            HStack(spacing: 12) {
                 Image(systemName: "circle")
                 TextField(text, text: $text)
                     .focused($isFocus)
@@ -55,6 +57,8 @@ struct ListItemView: View {
                     }
                     .accessibilityHint("Edit item name")
             }
+            .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     
